@@ -35,9 +35,7 @@ class RotatingProxySession:
             self.proxy_cycle = cycle([self.format_proxy(proxies)])
         elif isinstance(proxies, list):
             self.proxy_cycle = (
-                cycle([self.format_proxy(proxy) for proxy in proxies])
-                if proxies
-                else None
+                cycle([self.format_proxy(proxy) for proxy in proxies]) if proxies else None
             )
         else:
             self.proxy_cycle = None
@@ -215,7 +213,9 @@ def extract_salary(
         return None, None, None, None
 
     annual_max_salary = None
-    min_max_pattern = r"\$(\d+(?:,\d+)?(?:\.\d+)?)([kK]?)\s*[-—–]\s*(?:\$)?(\d+(?:,\d+)?(?:\.\d+)?)([kK]?)"
+    min_max_pattern = (
+        r"\$(\d+(?:,\d+)?(?:\.\d+)?)([kK]?)\s*[-—–]\s*(?:\$)?(\d+(?:,\d+)?(?:\.\d+)?)([kK]?)"
+    )
 
     def to_int(s):
         return int(float(s.replace(",", "")))
@@ -352,3 +352,21 @@ desired_order = [
     "vacancy_count",
     "work_from_home_type",
 ]
+
+
+def get_latest_user_agent(operating_system="windows", browser="chrome") -> str | None:
+    try:
+        url = f"https://jnrbsn.github.io/user-agents/user-agents.json"
+        r = requests.get(url)
+        r.raise_for_status()
+        user_agents = r.json()
+
+        for user_agent in user_agents:
+            if (
+                operating_system.lower() in user_agent.lower()
+                and browser.lower() in user_agent.lower()
+            ):
+                return user_agent
+    except Exception as e:
+        pass
+    return None
