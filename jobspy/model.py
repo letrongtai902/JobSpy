@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
 from datetime import date
 from enum import Enum
+from typing import Optional
+
 from pydantic import BaseModel
+
+from jobspy.util import get_latest_user_agent
 
 
 class JobType(Enum):
@@ -272,12 +275,13 @@ class JobPost(BaseModel):
     job_function: str | None = None
 
     # Naukri specific
-    skills: list[str] | None = None  #from tagsAndSkills
-    experience_range: str | None = None  #from experienceText
-    company_rating: float | None = None  #from ambitionBoxData.AggregateRating
-    company_reviews_count: int | None = None  #from ambitionBoxData.ReviewsCount
-    vacancy_count: int | None = None  #from vacancy
-    work_from_home_type: str | None = None  #from clusters.wfhType (e.g., "Hybrid", "Remote")
+    skills: list[str] | None = None  # from tagsAndSkills
+    experience_range: str | None = None  # from experienceText
+    company_rating: float | None = None  # from ambitionBoxData.AggregateRating
+    company_reviews_count: int | None = None  # from ambitionBoxData.ReviewsCount
+    vacancy_count: int | None = None  # from vacancy
+    work_from_home_type: str | None = None  # from clusters.wfhType (e.g., "Hybrid", "Remote")
+
 
 class JobResponse(BaseModel):
     jobs: list[JobPost] = []
@@ -320,12 +324,16 @@ class ScraperInput(BaseModel):
 
 class Scraper(ABC):
     def __init__(
-        self, site: Site, proxies: list[str] | None = None, ca_cert: str | None = None, user_agent: str | None = None
+        self,
+        site: Site,
+        proxies: list[str] | None = None,
+        ca_cert: str | None = None,
+        user_agent: str | None = None,
     ):
         self.site = site
         self.proxies = proxies
         self.ca_cert = ca_cert
-        self.user_agent = user_agent
+        self.user_agent = user_agent if user_agent else get_latest_user_agent()
 
     @abstractmethod
     def scrape(self, scraper_input: ScraperInput) -> JobResponse: ...
